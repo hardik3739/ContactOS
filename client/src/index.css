@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: 99 102 241;
+    --surface: 248 250 252;
+    --card: 255 255 255;
+    --border: 226 232 240;
+    --text-main: 15 23 42;
+    --text-muted: 100 116 139;
+    --hover-bg: rgba(15, 23, 42, 0.04);
+  }
+  
+  .dark {
+    --primary: 127 119 221;
+    --surface: 10 10 11;
+    --card: 18 19 22;
+    --border: 34 36 42;
+    --text-main: 248 250 252;
+    --text-muted: 148 163 184;
+    --hover-bg: rgba(255, 255, 255, 0.05);
+  }
+
+  * { box-sizing: border-box; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgb(var(--border)); border-radius: 2px; }
+  
+  body {
+    @apply bg-surface text-textMain transition-colors duration-300 antialiased;
+  }
+}
+
+@layer components {
+  .glass {
+    background: rgba(var(--card), 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+  }
+  .card-hover {
+    @apply transition-all duration-300 hover:border-primary/40 hover:-translate-y-1 hover:shadow-soft;
+  }
+  .btn-primary {
+    @apply bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm active:scale-95;
+  }
+  .btn-ghost {
+    @apply bg-transparent text-textMuted hover:text-textMain px-3 py-2 rounded-lg text-sm transition-all;
+  }
+  .btn-ghost:hover {
+    background-color: var(--hover-bg);
+  }
+  .input {
+    @apply w-full bg-card border border-border rounded-lg px-3 py-2.5 text-sm text-textMain placeholder-textMuted/60 focus:outline-none focus:border-primary/60 focus:ring-4 focus:ring-primary/10 transition-all shadow-sm;
+  }
+  .tag-chip {
+    @apply text-xs px-2.5 py-1 rounded-full font-medium tracking-wide shadow-sm;
+  }
+}
