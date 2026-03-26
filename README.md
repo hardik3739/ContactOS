@@ -85,3 +85,6 @@ Uses MongoDB `.skip().limit()` with a page parameter — contacts load in pages 
 | Icons | lucide-react |
 | Testing | Jest + Supertest (3 API integration tests) |
 | Deploy | Vercel (client) + Render (server) + MongoDB Atlas |
+<img width="1919" height="860" alt="image" src="https://github.com/user-attachments/assets/3784c59b-71bb-43c5-adef-8bd8400b3277" />
+<img width="1917" height="860" alt="image" src="https://github.com/user-attachments/assets/f5697976-8005-4a54-bcd3-bd23198a3a9c" />
+<img width="1914" height="869" alt="image" src="https://github.com/user-attachments/assets/5bff8357-5b6c-48b6-86d9-ee358dc3b4c5" />
