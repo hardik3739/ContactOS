@@ -1,83 +1,87 @@
-# ContactOS — Your personal contact intelligence dashboard
+# ContactOS — Contact Intelligence Dashboard
 
-ContactOS is a production-quality Contact Management Web App using the MERN stack. Designed with a Notion + Linear inspired minimal glassmorphism UI, staggered card animations, and robust functionality including full CRUD operations, JWT authentication, soft delete, tag filtering, and a live command palette search.
+> A minimal, production-ready contact management app built with the MERN stack.  
+> Designed to feel like Notion and Linear had a baby — dark, fast, and keyboard-first.
 
-[Live Demo](https://contact-os-five.vercel.app/)
+**Live Demo →** https://contact-os-five.vercel.app  
+**Demo login →** `demo@contactos.app` / `demo1234`
 
-![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
-![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
-![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
-![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+---
 
-## Getting Started
+## What is this?
 
-### Local Setup
+ContactOS is a full-stack Contact Management Web App that goes beyond basic CRUD.
+It's built to demonstrate real-world MERN patterns — JWT authentication, MongoDB text 
+search with indexes, soft delete with a recoverable trash bin, and a command palette 
+that lets you search or create contacts without touching the mouse.
 
-To run this application locally, you will need Node.js and MongoDB.
+The UI is dark-mode only, uses a glassmorphism sidebar, and animates contact cards 
+in with a staggered Framer Motion entrance — because first impressions matter.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-repo/contactos.git
-   ```
+---
 
-2. Setup Backend:
-   ```bash
-   cd server
-   npm install
-   cp .env.example .env
-   # Make sure your MONGO_URI string points to a MongoDB instance
-   ```
+## Core features
 
-3. Setup Frontend:
-   ```bash
-   cd ../client
-   npm install
-   cp .env.example .env
-   ```
+| Feature | Details |
+|---|---|
+| JWT Authentication | Register, login, protected routes — token stored in localStorage, injected on every request via Axios interceptors |
+| Full CRUD | Create, read, update, delete contacts with validation on both client (react-hook-form) and server (express-validator) |
+| Soft Delete + Trash | Contacts are never permanently deleted — `isDeleted: true` flag moves them to `/trash` where they can be restored |
+| Live Search | MongoDB `$text` index on name, email, and phone — 400ms debounced input, results update as you type |
+| Tag Filtering | Filter by work / personal / family / other — compound index ensures fast queries |
+| Command Palette | Press `⌘K` (or `Ctrl+K`) to open a spotlight-style search — find any contact or add a new one without a mouse |
+| Pin Contacts | Pin important contacts — they always sort to the top of the list |
+| Stats Bar | Shows total contacts, tag breakdown, and how many were added this week |
+| Skeleton Loaders | Cards show animated skeleton placeholders while data loads — no spinner |
+| Color-coded Avatars | Each contact gets a unique avatar color deterministically generated from their name |
 
-4. Seed the Database with dummy contacts:
-   ```bash
-   cd ../server
-   npm run seed
-   ```
+---
 
-5. Run the development servers:
-   - Server: `npm run dev` in the `server` directory (Runs on: http://localhost:5000)
-   - Client: `npm run dev` in the `client` directory (Runs on: http://localhost:5173)
+## Technical decisions worth noting
 
-### API Endpoints
+**Soft delete over hard delete**  
+Every delete sets `isDeleted: true` instead of removing the document. This mirrors 
+production behaviour — data is recoverable, audit trails are preserved, and it costs 
+nothing in MongoDB storage.
 
-| HTTP | Route                     | Protected | Description                     |
-|------|---------------------------|-----------|---------------------------------|
-| POST | `/api/auth/register`      | No        | Register a new user account     |
-| POST | `/api/auth/login`         | No        | Authenticate user and get token |
-| GET  | `/api/auth/me`            | Yes       | Get current user details        |
-| GET  | `/api/contacts`           | Yes       | Get contacts with pagination    |
-| POST | `/api/contacts`           | Yes       | Add a new contact               |
-| GET  | `/api/contacts/:id`       | Yes       | Specific contact details        |
-| PUT  | `/api/contacts/:id`       | Yes       | Update a contact                |
-| DEL  | `/api/contacts/:id`       | Yes       | Soft-delete contact to trash    |
-| GET  | `/api/contacts/trash`     | Yes       | Retrieve deleted contacts       |
-| POST | `/api/contacts/:id/restore`| Yes     | Restore a soft-deleted contact  |
-| GET  | `/api/contacts/stats`     | Yes       | Get statistics for user contacts|
+**MongoDB `$text` index for search**  
+`{ name: 'text', email: 'text', phone: 'text' }` — uses an inverted index instead 
+of a regex scan. Regex with the `/i` flag performs a full collection scan and 
+doesn't scale. Text indexes do.
 
-## Deployment Instructions
+**Compound indexes**  
+`{ user: 1, isDeleted: 1 }` and `{ user: 1, tag: 1 }` cover the two most common 
+query shapes. Every contact query filters by the logged-in user first — without 
+this index, MongoDB scans the entire collection per request.
 
-### Render (Backend)
-1. Push your code to GitHub.
-2. Sign up on [Render.com](https://render.com) and create a New Web Service.
-3. Select your repository, connect the `server` root directory.
-4. Add environment variables (`MONGO_URI`, `JWT_SECRET`, `CLIENT_URL` point to your frontend).
-5. Build CMD: `npm install`, Start CMD: `npm start`.
-6. Deploy your application. Make sure MongoDB Atlas IP Whitelisting is configured to `0.0.0.0/0`.
+**Axios interceptors instead of per-component auth logic**  
+One request interceptor reads the JWT and sets the Authorization header for every 
+API call automatically. One response interceptor catches 401s and redirects to 
+`/login` — no component handles token expiry manually.
 
-### Vercel (Frontend)
-1. Go to [Vercel](https://vercel.com/new).
-2. Select your repository with the `client` directory as your root.
-3. Configure Environment Variables (`VITE_API_URL` -> Your Render backend URL).
-4. Deploy the application. The build sequence is `npm run build` implicitly.
+**`useContacts` custom hook**  
+All contact state, fetching, creating, updating, and deleting is encapsulated in 
+one hook. Components call `createContact(data)` — they don't know what axios is 
+or what the API URL looks like. Clean separation of concerns.
 
-## License
+**Cursor-style pagination**  
+Uses MongoDB `.skip().limit()` with a page parameter — contacts load in pages of 
+20, keeping the initial payload small regardless of how many contacts exist.
 
-This project is MIT Licensed.
+---
+
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, Vite, Tailwind CSS, Framer Motion, React Router v6 |
+| State & Forms | React Hook Form, custom hooks (useContacts, useDebounce) |
+| HTTP | Axios with request + response interceptors |
+| Backend | Node.js, Express.js |
+| Database | MongoDB Atlas, Mongoose ODM |
+| Auth | JSON Web Tokens (jsonwebtoken + bcryptjs) |
+| Validation | express-validator (server), react-hook-form (client) |
+| Notifications | react-hot-toast |
+| Icons | lucide-react |
+| Testing | Jest + Supertest (3 API integration tests) |
+| Deploy | Vercel (client) + Render (server) + MongoDB Atlas |
