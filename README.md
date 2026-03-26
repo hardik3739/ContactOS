@@ -1,10 +1,8 @@
 # ContactOS — Your personal contact intelligence dashboard
 
-![ContactOS Design Mockup Placeholder](https://via.placeholder.com/800x400/111214/7f77dd?text=ContactOS)
-
 ContactOS is a production-quality Contact Management Web App using the MERN stack. Designed with a Notion + Linear inspired minimal glassmorphism UI, staggered card animations, and robust functionality including full CRUD operations, JWT authentication, soft delete, tag filtering, and a live command palette search.
 
-[Live Demo](https://contactos.vercel.app)
+[Live Demo](https://contact-os-five.vercel.app/)
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
